@@ -23,24 +23,26 @@ Una aplicación en Python que se conecta a tu correo de Microsoft usando dos mé
 
 ## Instalación Rápida
 
-### Opción 1: Instalación automatizada (Recomendada)
+### Opción 1: Instalación completamente automatizada (Recomendada)
 ```bash
 install.bat
 ```
-Este script:
-- Verifica que Python esté instalado
-- Detecta e inicializa repositorio Git si es necesario
-- **Crea repositorio en GitHub automáticamente** usando tu usuario `mpacheco@dynamizatic.com`
-- **Sincroniza automáticamente** el código con GitHub
-- Crea automáticamente el entorno virtual (si no existe)
-- Activa el entorno virtual
-- Instala todas las dependencias necesarias (si existe requirements.txt)
+Este script realiza **TODO AUTOMÁTICAMENTE**:
+- ✅ Verifica que Python esté instalado
+- ✅ **Detecta GitHub CLI** (aunque no esté en PATH)
+- ✅ **Autentica automáticamente** con GitHub (abre navegador)
+- ✅ **Crea repositorio en GitHub** usando tu usuario `mpacheco@dynamizatic.com`
+- ✅ **Sincroniza automáticamente** todo el código con GitHub
+- ✅ Detecta e inicializa repositorio Git si es necesario
+- ✅ Crea automáticamente el entorno virtual (si no existe)
+- ✅ Activa el entorno virtual
+- ✅ Instala todas las dependencias necesarias (si existe requirements.txt)
 
-### Sincronización rápida con GitHub
+### Scripts adicionales:
 ```bash
-sync.bat
+setup_github.bat    # Configuración avanzada de GitHub CLI
+sync.bat           # Sincronización rápida posterior
 ```
-Para sincronizar cambios posteriores con GitHub de forma automática.
 
 ### Opción 2: Instalación manual
 ```bash
@@ -144,7 +146,8 @@ Python_Correo/
 ├── graph_email_manager.py  # Gestión de correos Graph API
 ├── email_manager.py        # Gestión de correos IMAP
 ├── requirements.txt        # Dependencias de Python
-├── install.bat            # Script de instalación automatizada + Git/GitHub
+├── install.bat            # 🚀 Instalación COMPLETAMENTE automatizada
+├── setup_github.bat       # 🔧 Configuración avanzada GitHub CLI
 ├── run.bat                # Script de ejecución rápida
 ├── sync.bat               # Script de sincronización rápida con GitHub
 └── README.md              # Documentación completa

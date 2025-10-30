@@ -31,149 +31,262 @@ if errorlevel 1 (
     REM Verificar si ya existe un repositorio Git
     if exist ".git" (
         echo [OK] Repositorio Git encontrado
+        
+        REM Obtener el nombre de la carpeta actual
+        for %%I in (.) do set "PROJECT_NAME=%%~nxI"
+        set "GITHUB_USER=mpacheco@dynamizatic.com"
+        
+        echo [INFO] Verificando sincronizacion con GitHub...
+        echo [INFO] Usuario GitHub: !GITHUB_USER!
+        echo [INFO] Repositorio: !PROJECT_NAME!
+        
+        REM Verificar y sincronizar repositorio existente
+        call :sync_github_repo
     ) else (
         echo.
-        echo [INFO] No se encontro repositorio Git en este proyecto
-        set /p crear_repo="Quieres crear un repositorio Git? (s/n): "
+        echo [INFO] No se encontro repositorio Git - creando automaticamente...
         
-        if /i "!crear_repo!"=="s" (
-            echo [INFO] Inicializando repositorio Git...
-            git init
-            if errorlevel 1 (
-                echo [ERROR] Error inicializando repositorio Git
-            ) else (
-                echo [OK] Repositorio Git creado exitosamente
-                
-                REM Crear .gitignore si no existe
-                if not exist ".gitignore" (
-                    echo [INFO] Creando archivo .gitignore...
-                    (
-                        echo # Entorno virtual
-                        echo .venv/
-                        echo __pycache__/
-                        echo *.pyc
-                        echo.
-                        echo # Archivos de salida
-                        echo *.xlsx
-                        echo *.csv
-                        echo.
-                        echo # Archivos del sistema
-                        echo .DS_Store
-                        echo Thumbs.db
-                        echo desktop.ini
-                        echo.
-                        echo # Archivos temporales
-                        echo *.tmp
-                        echo *.temp
-                        echo ~*
-                    ) > .gitignore
-                    echo [OK] Archivo .gitignore creado
-                )
-                
-                echo [INFO] Agregando archivos al repositorio...
-                git add .
-                git commit -m "Initial commit: Descargador de Correos de Microsoft"
-                if errorlevel 1 (
-                    echo [WARNING] Error haciendo commit inicial
-                ) else (
-                    echo [OK] Commit inicial realizado
-                )
-                
-                REM Obtener el nombre de la carpeta actual
-                for %%I in (.) do set "PROJECT_NAME=%%~nxI"
-                set "GITHUB_USER=mpacheco@dynamizatic.com"
-                
-                echo.
-                echo [INFO] Configurando repositorio de GitHub automaticamente...
-                echo [INFO] Usuario GitHub: !GITHUB_USER!
-                echo [INFO] Nombre del repositorio: !PROJECT_NAME!
-                
-                REM Verificar si GitHub CLI está instalado
-                gh --version >nul 2>&1
-                if errorlevel 1 (
-                    echo [WARNING] GitHub CLI no encontrado - instalando configuracion manual...
-                    
-                    REM Configurar remote origin automáticamente
-                    echo [INFO] Configurando repositorio remoto...
-                    git remote remove origin >nul 2>&1
-                    git remote add origin https://github.com/!GITHUB_USER!/!PROJECT_NAME!.git
-                    git branch -M main
-                    
-                    echo [INFO] Repositorio configurado para sincronizacion automatica
-                    echo [INFO] Para completar la configuracion en GitHub:
-                    echo [INFO] 1. Instala GitHub CLI: https://cli.github.com/
-                    echo [INFO] 2. Ejecuta: gh auth login
-                    echo [INFO] 3. Crea el repositorio: gh repo create !PROJECT_NAME! --public
-                    echo [INFO] 4. Sincroniza: git push -u origin main
-                    echo.
-                    echo [INFO] O crea manualmente en: https://github.com/new
-                    echo [INFO] Nombre: !PROJECT_NAME!
-                    echo [INFO] Luego ejecuta: git push -u origin main
-                ) else (
-                    echo [OK] GitHub CLI encontrado - configurando automaticamente...
-                    
-                    REM Verificar si el repositorio ya existe en GitHub
-                    gh repo view !GITHUB_USER!/!PROJECT_NAME! >nul 2>&1
-                    if errorlevel 1 (
-                        echo [INFO] Repositorio no existe en GitHub - creando...
-                        
-                        REM Verificar autenticación
-                        gh auth status >nul 2>&1
-                        if errorlevel 1 (
-                            echo [INFO] Autenticando con GitHub CLI...
-                            gh auth login --hostname github.com --protocol https --web
-                        )
-                        
-                        REM Crear repositorio público automáticamente
-                        echo [INFO] Creando repositorio publico en GitHub...
-                        gh repo create !PROJECT_NAME! --public --source=. --remote=origin --push
-                        
-                        if errorlevel 1 (
-                            echo [WARNING] Error creando repositorio automaticamente
-                            echo [INFO] Configurando manualmente...
-                            git remote remove origin >nul 2>&1
-                            git remote add origin https://github.com/!GITHUB_USER!/!PROJECT_NAME!.git
-                            git branch -M main
-                            echo [INFO] Crea el repositorio manualmente en: https://github.com/new
-                            echo [INFO] Nombre: !PROJECT_NAME!
-                            echo [INFO] Luego ejecuta: git push -u origin main
-                        ) else (
-                            echo [OK] Repositorio creado y sincronizado exitosamente!
-                            echo [INFO] URL: https://github.com/!GITHUB_USER!/!PROJECT_NAME!
-                        )
-                    ) else (
-                        echo [OK] Repositorio ya existe en GitHub - sincronizando...
-                        
-                        REM Configurar remote si no existe
-                        git remote get-url origin >nul 2>&1
-                        if errorlevel 1 (
-                            git remote add origin https://github.com/!GITHUB_USER!/!PROJECT_NAME!.git
-                        )
-                        
-                        REM Sincronizar con GitHub
-                        git branch -M main
-                        git push -u origin main
-                        
-                        if errorlevel 1 (
-                            echo [WARNING] Error sincronizando - podria ser por cambios remotos
-                            echo [INFO] Sincronizando con pull primero...
-                            git pull origin main --allow-unrelated-histories
-                            git push -u origin main
-                        )
-                        
-                        echo [OK] Repositorio sincronizado con GitHub!
-                        echo [INFO] URL: https://github.com/!GITHUB_USER!/!PROJECT_NAME!
-                    )
-                )
-            )
+        REM Crear repositorio automáticamente
+        REM Crear repositorio automáticamente
+        echo [INFO] Inicializando repositorio Git automaticamente...
+        git init
+        if errorlevel 1 (
+            echo [ERROR] Error inicializando repositorio Git
         ) else (
-            echo [INFO] Repositorio Git no creado
+            echo [OK] Repositorio Git creado exitosamente
+            
+            REM Crear .gitignore si no existe
+            if not exist ".gitignore" (
+                echo [INFO] Creando archivo .gitignore...
+                (
+                    echo # Entorno virtual
+                    echo .venv/
+                    echo __pycache__/
+                    echo *.pyc
+                    echo.
+                    echo # Archivos de salida
+                    echo *.xlsx
+                    echo *.csv
+                    echo.
+                    echo # Archivos del sistema
+                    echo .DS_Store
+                    echo Thumbs.db
+                    echo desktop.ini
+                    echo.
+                    echo # Archivos temporales
+                    echo *.tmp
+                    echo *.temp
+                    echo ~*
+                ) > .gitignore
+                echo [OK] Archivo .gitignore creado
+            )
+            
+            echo [INFO] Agregando archivos al repositorio...
+            git add .
+            git commit -m "Initial commit: Descargador de Correos de Microsoft"
+            if errorlevel 1 (
+                echo [WARNING] Error haciendo commit inicial
+            ) else (
+                echo [OK] Commit inicial realizado
+            )
+            
+            REM Obtener el nombre de la carpeta actual y configurar GitHub
+            for %%I in (.) do set "PROJECT_NAME=%%~nxI"
+            set "GITHUB_USER=mpacheco@dynamizatic.com"
+            
+            echo.
+            echo [INFO] Creando repositorio en GitHub automaticamente...
+            echo [INFO] Usuario GitHub: !GITHUB_USER!
+            echo [INFO] Nombre del repositorio: !PROJECT_NAME!
+            
+            REM Crear y sincronizar repositorio
+            call :create_github_repo
         )
     )
 )
 
 echo.
+goto :continue_installation
 
+REM Función para crear repositorio en GitHub
+:create_github_repo
+echo [INFO] Verificando GitHub CLI...
+gh --version >nul 2>&1
+if errorlevel 1 (
+    REM Verificar si GitHub CLI está instalado pero no en PATH
+    if exist "C:\Program Files\GitHub CLI\gh.exe" (
+        echo [INFO] GitHub CLI encontrado - agregando al PATH temporalmente...
+        set "PATH=%PATH%;C:\Program Files\GitHub CLI"
+        gh --version >nul 2>&1
+        if errorlevel 1 (
+            echo [WARNING] Error configurando GitHub CLI
+            goto :github_manual_setup
+        ) else (
+            echo [OK] GitHub CLI configurado exitosamente!
+            goto :github_auto_setup
+        )
+    ) else (
+        echo [WARNING] GitHub CLI no encontrado
+        goto :github_manual_setup
+    )
+) else (
+    echo [OK] GitHub CLI encontrado y configurado
+    goto :github_auto_setup
+)
+
+:github_manual_setup
+echo.
+echo [INFO] Para configurar GitHub automaticamente:
+echo [INFO] Ejecuta: setup_github.bat
+echo.
+echo [INFO] O instala manualmente:
+echo [INFO] 1. Descarga desde: https://cli.github.com/
+echo [INFO] 2. Instala el archivo descargado
+echo [INFO] 3. Reinicia PowerShell/CMD
+echo [INFO] 4. Ejecuta: gh auth login
+echo [INFO] 5. Ejecuta: gh repo create !PROJECT_NAME! --public --source=. --push
+echo.
+echo [INFO] Configurando repositorio local para GitHub...
+git remote remove origin >nul 2>&1
+git remote add origin https://github.com/!GITHUB_USER!/!PROJECT_NAME!.git
+git branch -M main
+
+echo [INFO] URL del repositorio: https://github.com/!GITHUB_USER!/!PROJECT_NAME!
+echo [INFO] Una vez configurado GitHub CLI, ejecuta: git push -u origin main
+goto :eof
+
+:github_auto_setup
+
+echo [OK] GitHub CLI disponible - configurando automaticamente...
+
+REM Verificar autenticación
+gh auth status >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Autenticando con GitHub CLI automaticamente...
+    echo [INFO] Se abrira el navegador para autenticacion...
+    gh auth login --hostname github.com --protocol https --web
+    if errorlevel 1 (
+        echo [WARNING] Error en autenticacion
+        echo [INFO] Configurando repositorio local...
+        git remote remove origin >nul 2>&1
+        git remote add origin https://github.com/!GITHUB_USER!/!PROJECT_NAME!.git
+        git branch -M main
+        echo [INFO] Autentica manualmente: gh auth login
+        echo [INFO] Luego crea el repo: gh repo create !PROJECT_NAME! --public --source=. --push
+        goto :eof
+    )
+)
+
+echo [OK] Autenticacion verificada
+
+REM Verificar si el repositorio ya existe en GitHub
+echo [INFO] Verificando si el repositorio existe en GitHub...
+gh repo view !PROJECT_NAME! >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Repositorio no existe - creando automaticamente...
+    
+    REM Crear repositorio público automáticamente
+    echo [INFO] Creando repositorio publico en GitHub...
+    gh repo create !PROJECT_NAME! --public --source=. --remote=origin --push
+    
+    if errorlevel 1 (
+        echo [WARNING] Error creando repositorio automaticamente
+        echo [INFO] Intentando metodo alternativo...
+        git remote remove origin >nul 2>&1
+        git remote add origin https://github.com/!GITHUB_USER!/!PROJECT_NAME!.git
+        git branch -M main
+        echo [INFO] Crea manualmente: gh repo create !PROJECT_NAME! --public
+        echo [INFO] Luego: git push -u origin main
+    ) else (
+        echo [OK] Repositorio creado y sincronizado automaticamente!
+        echo [INFO] URL: https://github.com/!GITHUB_USER!/!PROJECT_NAME!
+    )
+) else (
+    echo [OK] Repositorio ya existe en GitHub
+    echo [INFO] Configurando conexion local...
+    
+    REM Configurar remote si no existe
+    git remote get-url origin >nul 2>&1
+    if errorlevel 1 (
+        git remote add origin https://github.com/!GITHUB_USER!/!PROJECT_NAME!.git
+    )
+    
+    REM Sincronizar con GitHub
+    git branch -M main
+    echo [INFO] Sincronizando con repositorio existente...
+    git push -u origin main
+    
+    if errorlevel 1 (
+        echo [INFO] Sincronizando con pull primero...
+        git pull origin main --allow-unrelated-histories >nul 2>&1
+        git push -u origin main
+        if errorlevel 1 (
+            echo [WARNING] Error sincronizando - posibles conflictos
+            echo [INFO] Resuelve manualmente: git pull origin main
+        ) else (
+            echo [OK] Sincronizacion completada!
+        )
+    ) else (
+        echo [OK] Repositorio sincronizado con GitHub!
+    )
+    
+    echo [INFO] URL: https://github.com/!GITHUB_USER!/!PROJECT_NAME!
+)
+goto :eof
+
+REM Función para sincronizar repositorio existente
+:sync_github_repo
+gh --version >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] GitHub CLI no encontrado - sincronizacion manual disponible
+    git remote get-url origin >nul 2>&1
+    if errorlevel 1 (
+        echo [INFO] Configurando remote origin...
+        git remote add origin https://github.com/!GITHUB_USER!/!PROJECT_NAME!.git
+    )
+    echo [INFO] Para sincronizar: git push -u origin main
+    goto :eof
+)
+
+echo [OK] GitHub CLI disponible
+git remote get-url origin >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Configurando conexion con GitHub...
+    git remote add origin https://github.com/!GITHUB_USER!/!PROJECT_NAME!.git
+)
+
+echo [INFO] Verificando estado del repositorio...
+git status --porcelain >nul 2>&1
+
+REM Verificar si hay cambios para commit
+git diff --staged --quiet >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Hay cambios sin commit - creando commit automatico...
+    git add .
+    git commit -m "Actualizacion automatica desde install.bat"
+)
+
+echo [INFO] Sincronizando con GitHub...
+git push -u origin main >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Primera sincronizacion o cambios remotos detectados...
+    git pull origin main --allow-unrelated-histories >nul 2>&1
+    git push -u origin main >nul 2>&1
+    if errorlevel 1 (
+        echo [WARNING] Error de sincronizacion - revisar manualmente
+    ) else (
+        echo [OK] Repositorio sincronizado exitosamente!
+    )
+) else (
+    echo [OK] Repositorio actualizado en GitHub!
+)
+
+echo [INFO] URL: https://github.com/!GITHUB_USER!/!PROJECT_NAME!
+goto :eof
+
+:continue_installation
+
+:continue_installation
 REM Verificar si el entorno virtual ya existe
 if exist ".venv" (
     echo [OK] Entorno virtual encontrado, activando...
