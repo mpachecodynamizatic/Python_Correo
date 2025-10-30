@@ -1,0 +1,17 @@
+# requirements.txt
+# Dependencias para la aplicación de correo
+
+# Para Microsoft Graph API (método alternativo sin IMAP)
+requests>=2.31.0
+
+# Para exportación a Excel
+openpyxl>=3.1.0
+
+# Dependencias opcionales (comentadas por defecto):
+# pandas>=2.0.0  # Solo para exportación avanzada con pandas
+
+# NOTA: 
+# - El método IMAP no requiere dependencias externas adicionales
+# - El método Graph API requiere 'requests'
+# - La exportación a Excel requiere 'openpyxl'
+# - Todas las demás funcionalidades usan librerías estándar de Python
