@@ -65,7 +65,7 @@ if errorlevel 1 (
     echo.
     pause
     
-    gh auth login --hostname github.com --protocol https --web
+    gh auth login --hostname github.com --git-protocol https --web
     
     if errorlevel 1 (
         echo [ERROR] Error en autenticacion

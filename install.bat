@@ -34,7 +34,10 @@ if errorlevel 1 (
         
         REM Obtener el nombre de la carpeta actual
         for %%I in (.) do set "PROJECT_NAME=%%~nxI"
-        set "GITHUB_USER=mpacheco@dynamizatic.com"
+        
+        REM Detectar usuario de GitHub automáticamente
+        for /f "tokens=*" %%i in ('gh api user --jq .login 2^>nul') do set "GITHUB_USER=%%i"
+        if "!GITHUB_USER!"=="" set "GITHUB_USER=mpacheco@dynamizatic.com"
         
         echo [INFO] Verificando sincronizacion con GitHub...
         echo [INFO] Usuario GitHub: !GITHUB_USER!
@@ -92,7 +95,10 @@ if errorlevel 1 (
             
             REM Obtener el nombre de la carpeta actual y configurar GitHub
             for %%I in (.) do set "PROJECT_NAME=%%~nxI"
-            set "GITHUB_USER=mpacheco@dynamizatic.com"
+            
+            REM Detectar usuario de GitHub automáticamente
+            for /f "tokens=*" %%i in ('gh api user --jq .login 2^>nul') do set "GITHUB_USER=%%i"
+            if "!GITHUB_USER!"=="" set "GITHUB_USER=mpacheco@dynamizatic.com"
             
             echo.
             echo [INFO] Creando repositorio en GitHub automaticamente...
@@ -164,7 +170,7 @@ gh auth status >nul 2>&1
 if errorlevel 1 (
     echo [INFO] Autenticando con GitHub CLI automaticamente...
     echo [INFO] Se abrira el navegador para autenticacion...
-    gh auth login --hostname github.com --protocol https --web
+    gh auth login --hostname github.com --git-protocol https --web
     if errorlevel 1 (
         echo [WARNING] Error en autenticacion
         echo [INFO] Configurando repositorio local...

@@ -6,9 +6,15 @@ echo Usuario: mpacheco@dynamizatic.com
 echo ============================================================
 echo.
 
+REM Agregar GitHub CLI al PATH si está instalado
+set "PATH=%PATH%;C:\Program Files\GitHub CLI"
+
 REM Obtener el nombre de la carpeta actual
 for %%I in (.) do set "PROJECT_NAME=%%~nxI"
-set "GITHUB_USER=mpacheco@dynamizatic.com"
+
+REM Detectar usuario de GitHub automáticamente si está autenticado
+for /f "tokens=*" %%i in ('gh api user --jq .login 2^>nul') do set "GITHUB_USER=%%i"
+if "!GITHUB_USER!"=="" set "GITHUB_USER=mpachecodynamizatic"
 
 echo [INFO] Sincronizando proyecto: !PROJECT_NAME!
 echo [INFO] Usuario GitHub: !GITHUB_USER!
@@ -33,7 +39,42 @@ if not exist ".git" (
 
 echo [OK] Git encontrado - iniciando sincronizacion...
 
-REM Verificar estado del repositorio
+REM Verificar GitHub CLI
+gh --version >nul 2>&1
+if errorlevel 1 (
+    echo [WARNING] GitHub CLI no encontrado
+    echo [INFO] Usando Git tradicional para sincronizacion...
+    goto :git_sync_only
+)
+
+echo [OK] GitHub CLI encontrado
+
+REM Verificar autenticación
+gh auth status >nul 2>&1
+if errorlevel 1 (
+    echo [WARNING] No estas autenticado con GitHub CLI
+    echo [INFO] Para autenticarte automaticamente ejecuta: auth_github.bat
+    echo [INFO] O ejecuta manualmente: gh auth login --web
+    echo.
+    set /p auth_now="Quieres autenticarte ahora? (s/n): "
+    if /i "!auth_now!"=="s" (
+        echo [INFO] Abriendo autenticacion...
+        gh auth login --web
+        if errorlevel 1 (
+            echo [WARNING] Error en autenticacion - usando Git tradicional
+            goto :git_sync_only
+        )
+    ) else (
+        echo [INFO] Usando Git tradicional para sincronizacion...
+        goto :git_sync_only
+    )
+)
+
+echo [OK] Autenticado con GitHub CLI - continuando...
+
+:git_sync_only
+echo.
+echo [INFO] Verificando estado del repositorio...
 git status --porcelain >nul 2>&1
 if errorlevel 1 (
     echo [ERROR] Error verificando estado del repositorio
