@@ -138,7 +138,7 @@ if errorlevel 1 (
     echo [INFO] Posibles soluciones:
     echo [INFO] 1. Verifica tu conexion a internet
     echo [INFO] 2. Verifica que el repositorio existe: https://github.com/!GITHUB_USER!/!PROJECT_NAME!
-    echo [INFO] 3. Ejecuta: gh auth login (si usas GitHub CLI)
+    echo [INFO] 3. Ejecuta: gh auth login --web (si usas GitHub CLI)
     echo.
     echo [INFO] Intenta sincronizar manualmente:
     echo [INFO]   git push origin main

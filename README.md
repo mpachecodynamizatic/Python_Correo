@@ -31,7 +31,7 @@ Este script realiza **TODO AUTOMÁTICAMENTE**:
 - ✅ Verifica que Python esté instalado
 - ✅ **Detecta GitHub CLI** (aunque no esté en PATH)
 - ✅ **Autentica automáticamente** con GitHub (abre navegador)
-- ✅ **Crea repositorio en GitHub** usando tu usuario `mpacheco@dynamizatic.com`
+- ✅ **Crea repositorio en GitHub** usando tu usuario autenticado (`mpachecodynamizatic`)
 - ✅ **Sincroniza automáticamente** todo el código con GitHub
 - ✅ Detecta e inicializa repositorio Git si es necesario
 - ✅ Crea automáticamente el entorno virtual (si no existe)
@@ -40,8 +40,9 @@ Este script realiza **TODO AUTOMÁTICAMENTE**:
 
 ### Scripts adicionales:
 ```bash
-setup_github.bat    # Configuración avanzada de GitHub CLI
-sync.bat           # Sincronización rápida posterior
+auth_github.bat    # Autenticación rápida con GitHub CLI
+setup_github.bat   # Configuración avanzada de GitHub CLI  
+sync.bat          # Sincronización rápida posterior
 ```
 
 ### Opción 2: Instalación manual
@@ -147,6 +148,7 @@ Python_Correo/
 ├── email_manager.py        # Gestión de correos IMAP
 ├── requirements.txt        # Dependencias de Python
 ├── install.bat            # 🚀 Instalación COMPLETAMENTE automatizada
+├── auth_github.bat        # 🔐 Autenticación rápida GitHub CLI
 ├── setup_github.bat       # 🔧 Configuración avanzada GitHub CLI
 ├── run.bat                # Script de ejecución rápida
 ├── sync.bat               # Script de sincronización rápida con GitHub
@@ -156,7 +158,7 @@ Python_Correo/
 ## Características Técnicas
 
 ### Integración con Git/GitHub
-- **Configuración automática**: Usuario GitHub preconfigurado (`mpacheco@dynamizatic.com`)
+- **Detección automática**: Usuario GitHub detectado automáticamente (`mpachecodynamizatic`)
 - **Inicialización automática**: El script detecta si el proyecto está en un repositorio Git y lo inicializa si es necesario
 - **Creación de repositorio remoto**: Integración con GitHub CLI para crear automáticamente el repositorio en GitHub
 - **Sincronización inteligente**: Detecta si el repositorio ya existe y sincroniza automáticamente
